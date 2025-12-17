@@ -43,7 +43,7 @@ function App() {
       const limit = 20;
       const offset = (pageNum - 1) * limit;
       console.log(`Fetching page ${pageNum}, offset ${offset}, limit ${limit}`);
-      const res = await fetch(`http://localhost:8080/api/v1/scores?limit=${limit}&offset=${offset}`);
+      const res = await fetch(`/api/v1/scores?limit=${limit}&offset=${offset}`);
       const data = await res.json();
       
       console.log(`Received ${data.length} items for page ${pageNum}`);
