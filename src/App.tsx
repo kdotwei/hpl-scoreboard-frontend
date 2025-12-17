@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 
 interface Score {
   id: string;
@@ -6,6 +6,8 @@ interface Score {
   gflops: number;
   problem_size_n: number;
   block_size_nb: number;
+  p: number;
+  q: number;
   submitted_at: string;
 }
 
@@ -15,14 +17,99 @@ function App() {
     // 初始化時檢查系統偏好設定
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const isFetchingRef = useRef(false);
+  const currentPageRef = useRef(1);
+
+  const fetchScores = async (pageNum: number) => {
+    // 防止重複請求
+    if (isFetchingRef.current) {
+      console.log('Already fetching, skipping...');
+      return;
+    }
+    
+    if (!hasMore && pageNum > 1) {
+      console.log('No more data to fetch');
+      return;
+    }
+    
+    isFetchingRef.current = true;
+    setLoading(true);
+    
+    try {
+      const limit = 20;
+      const offset = (pageNum - 1) * limit;
+      console.log(`Fetching page ${pageNum}, offset ${offset}, limit ${limit}`);
+      const res = await fetch(`http://localhost:8080/api/v1/scores?limit=${limit}&offset=${offset}`);
+      const data = await res.json();
+      
+      console.log(`Received ${data.length} items for page ${pageNum}`);
+      
+      // 如果返回的資料為空或少於 limit，表示沒有更多資料了
+      if (data.length === 0) {
+        setHasMore(false);
+        return;
+      }
+      
+      if (data.length < limit) {
+        setHasMore(false);
+      }
+      
+      setScores(prev => {
+        if (pageNum === 1) {
+          return data;
+        }
+        // 使用 id 去重，避免重複資料
+        const existingIds = new Set(prev.map(s => s.id));
+        const newData = data.filter((s: Score) => !existingIds.has(s.id));
+        console.log(`Adding ${newData.length} new unique items`);
+        return [...prev, ...newData];
+      });
+      
+      currentPageRef.current = pageNum;
+    } catch (err) {
+      console.error("Fetch error:", err);
+    } finally {
+      setLoading(false);
+      isFetchingRef.current = false;
+    }
+  };
 
   useEffect(() => {
-    // 串接後端公開 API
-    fetch('http://localhost:8080/api/v1/scores?limit=20')
-      .then((res) => res.json())
-      .then((data) => setScores(data))
-      .catch((err) => console.error("Fetch error:", err));
-  }, []);
+    // 只在初始化時載入第一頁
+    fetchScores(1);
+  }, []); // 空依賴項，只執行一次
+
+  useEffect(() => {
+    // 設置 Intersection Observer 來偵測滾動到底部
+    if (observerRef.current) observerRef.current.disconnect();
+
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !isFetchingRef.current) {
+          const nextPage = currentPageRef.current + 1;
+          console.log(`Observer triggered, loading page ${nextPage}`);
+          setPage(nextPage);
+          fetchScores(nextPage);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (loadMoreRef.current) {
+      observerRef.current.observe(loadMoreRef.current);
+    }
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, [hasMore]); // 只依賴 hasMore，當沒有更多資料時停止觀察
 
   useEffect(() => {
     // 監聽系統主題變化
@@ -212,6 +299,20 @@ function App() {
                           }`}>
                             NB: {s.block_size_nb}
                           </span>
+                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium backdrop-blur-sm transition-colors duration-300 ${
+                            isDarkMode 
+                              ? 'bg-slate-700/60 text-slate-200 border border-slate-600/60' 
+                              : 'bg-white/60 text-slate-700 border border-white/60'
+                          }`}>
+                            P: {s.p}
+                          </span>
+                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium backdrop-blur-sm transition-colors duration-300 ${
+                            isDarkMode 
+                              ? 'bg-slate-700/60 text-slate-200 border border-slate-600/60' 
+                              : 'bg-white/60 text-slate-700 border border-white/60'
+                          }`}>
+                            Q: {s.q}
+                          </span>
                         </div>
                       </td>
                       <td className="px-4 sm:px-6 py-4">
@@ -230,7 +331,7 @@ function App() {
           </div>
 
           {/* Empty State */}
-          {scores.length === 0 && (
+          {scores.length === 0 && !loading && (
             <div className="text-center py-16 px-4 backdrop-blur-sm">
               <h3 className={`text-lg font-medium mb-2 ${isDarkMode ? 'text-slate-200/90' : 'text-slate-700/90'}`}>No submissions yet</h3>
               <p className={`text-sm ${isDarkMode ? 'text-slate-400/80' : 'text-slate-500/80'}`}>Waiting for performance data...</p>
@@ -238,8 +339,35 @@ function App() {
           )}
         </div>
 
+        {/* Loading Indicator & Intersection Observer Target */}
+        {hasMore && (
+          <div ref={loadMoreRef} className="text-center py-8">
+            {loading && (
+              <div className="flex flex-col items-center gap-3">
+                <div className={`animate-spin rounded-full h-10 w-10 border-4 ${
+                  isDarkMode 
+                    ? 'border-slate-700 border-t-slate-400' 
+                    : 'border-slate-300 border-t-slate-600'
+                }`}></div>
+                <p className={`text-sm ${isDarkMode ? 'text-slate-400/80' : 'text-slate-500/80'}`}>
+                  Loading more scores...
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* End of Results */}
+        {!hasMore && scores.length > 0 && (
+          <div className="text-center py-8">
+            <p className={`text-sm ${isDarkMode ? 'text-slate-400/70' : 'text-slate-500/70'}`}>
+              🎉 All submissions loaded
+            </p>
+          </div>
+        )}
+
         {/* Footer */}
-        <div className="text-center">
+        <div className="text-center pb-4">
           <p className={`text-sm ${isDarkMode ? 'text-slate-400/70' : 'text-slate-600/70'}`}>Updates automatically</p>
         </div>
       </div>
