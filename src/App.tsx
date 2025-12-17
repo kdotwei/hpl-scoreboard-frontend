@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 interface Score {
   id: string;
@@ -17,7 +17,6 @@ function App() {
     // 初始化時檢查系統偏好設定
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
-  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -93,7 +92,6 @@ function App() {
         if (entries[0].isIntersecting && hasMore && !isFetchingRef.current) {
           const nextPage = currentPageRef.current + 1;
           console.log(`Observer triggered, loading page ${nextPage}`);
-          setPage(nextPage);
           fetchScores(nextPage);
         }
       },
