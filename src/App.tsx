@@ -31,115 +31,111 @@ function App() {
 
   const getRankColor = (rank: number) => {
     switch (rank) {
-      case 1: return 'from-amber-50 to-yellow-50 border-l-4 border-yellow-400';
-      case 2: return 'from-slate-50 to-gray-50 border-l-4 border-gray-400';
-      case 3: return 'from-orange-50 to-amber-50 border-l-4 border-orange-400';
+      case 1: return 'bg-amber-50/50';
+      case 2: return 'bg-slate-50/50';
+      case 3: return 'bg-orange-50/50';
       default: return '';
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 p-4 sm:p-8">
-      <div className="max-w-6xl mx-auto">
-        {/* Header Section */}
-        <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-3xl shadow-2xl overflow-hidden mb-8 transform hover:scale-[1.01] transition-transform duration-300">
-          <div className="p-8 sm:p-12 text-white relative overflow-hidden">
-            <div className="absolute inset-0 bg-black opacity-10"></div>
-            <div className="relative z-10">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="text-5xl">🚀</span>
-                <h1 className="text-4xl sm:text-5xl font-black tracking-tight">
-                  HPL Performance Scoreboard
-                </h1>
-              </div>
-              <p className="text-lg sm:text-xl text-indigo-100 font-medium">
-                高效能運算課程實測排名 · 即時更新
-              </p>
-              <div className="mt-4 inline-block bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-semibold">
-                v1.1 · Total {scores.length} Submissions
-              </div>
-            </div>
+    <div className="min-h-screen bg-neutral-100 p-4 sm:p-6 md:p-8">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header - Material 3 Surface Container */}
+        <div className="bg-white rounded-3xl shadow-md overflow-hidden">
+          <div className="bg-neutral-900 px-6 py-8 sm:px-8 sm:py-10">
+            <h1 className="text-3xl sm:text-4xl font-medium text-white tracking-tight mb-1">
+              HPL Performance Scoreboard
+            </h1>
+            <p className="text-base text-neutral-300 font-normal">
+              高效能運算課程實測排名
+            </p>
           </div>
         </div>
 
-        {/* Scoreboard Card */}
-        <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-slate-200/50">
-          {/* Stats Bar */}
-          {scores.length > 0 && (
-            <div className="bg-gradient-to-r from-slate-50 to-slate-100 px-8 py-4 border-b border-slate-200 grid grid-cols-3 gap-4">
-              <div className="text-center">
-                <div className="text-xs text-slate-500 font-semibold uppercase">Top Score</div>
-                <div className="text-2xl font-bold text-indigo-600">{scores[0]?.gflops.toFixed(2)}</div>
-              </div>
-              <div className="text-center border-x border-slate-300">
-                <div className="text-xs text-slate-500 font-semibold uppercase">Average</div>
-                <div className="text-2xl font-bold text-purple-600">
-                  {(scores.reduce((sum, s) => sum + s.gflops, 0) / scores.length).toFixed(2)}
-                </div>
-              </div>
-              <div className="text-center">
-                <div className="text-xs text-slate-500 font-semibold uppercase">Submissions</div>
-                <div className="text-2xl font-bold text-pink-600">{scores.length}</div>
-              </div>
+        {/* Stats Cards - Material 3 Filled Cards */}
+        {scores.length > 0 && (
+          <div className="grid grid-cols-3 gap-3 sm:gap-4">
+            <div className="bg-neutral-100 rounded-2xl p-4 sm:p-5 border border-neutral-200">
+              <div className="text-xs sm:text-sm font-medium text-neutral-600 mb-1">Top Score</div>
+              <div className="text-2xl sm:text-3xl font-medium text-neutral-900">{scores[0]?.gflops.toFixed(2)}</div>
+              <div className="text-xs text-neutral-500 mt-1">GFLOPS</div>
             </div>
-          )}
+            <div className="bg-neutral-100 rounded-2xl p-4 sm:p-5 border border-neutral-200">
+              <div className="text-xs sm:text-sm font-medium text-neutral-600 mb-1">Average</div>
+              <div className="text-2xl sm:text-3xl font-medium text-neutral-900">
+                {(scores.reduce((sum, s) => sum + s.gflops, 0) / scores.length).toFixed(2)}
+              </div>
+              <div className="text-xs text-neutral-500 mt-1">GFLOPS</div>
+            </div>
+            <div className="bg-neutral-100 rounded-2xl p-4 sm:p-5 border border-neutral-200">
+              <div className="text-xs sm:text-sm font-medium text-neutral-600 mb-1">Total</div>
+              <div className="text-2xl sm:text-3xl font-medium text-neutral-900">{scores.length}</div>
+              <div className="text-xs text-neutral-500 mt-1">Submissions</div>
+            </div>
+          </div>
+        )}
 
+        {/* Scoreboard - Material 3 Elevated Surface */}
+        <div className="bg-white rounded-3xl shadow-lg overflow-hidden">
           {/* Table */}
           <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead className="bg-gradient-to-r from-slate-100 to-slate-50 border-b-2 border-indigo-200">
-                <tr className="text-slate-700 text-xs sm:text-sm uppercase font-bold">
-                  <th className="px-4 sm:px-6 py-5">Rank</th>
-                  <th className="px-4 sm:px-6 py-5">Student ID</th>
-                  <th className="px-4 sm:px-6 py-5">Performance</th>
-                  <th className="px-4 sm:px-6 py-5">Configuration</th>
-                  <th className="px-4 sm:px-6 py-5">Submitted</th>
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-neutral-200 bg-neutral-50">
+                  <th className="px-4 sm:px-6 py-4 text-left text-sm font-medium text-neutral-700">Rank</th>
+                  <th className="px-4 sm:px-6 py-4 text-left text-sm font-medium text-neutral-700">Student ID</th>
+                  <th className="px-4 sm:px-6 py-4 text-left text-sm font-medium text-neutral-700">Performance</th>
+                  <th className="px-4 sm:px-6 py-4 text-left text-sm font-medium text-neutral-700">Configuration</th>
+                  <th className="px-4 sm:px-6 py-4 text-left text-sm font-medium text-neutral-700">Submitted</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody>
                 {scores.map((s, i) => {
                   const rank = i + 1;
                   const medal = getMedalEmoji(rank);
                   return (
                     <tr 
                       key={s.id} 
-                      className={`hover:bg-indigo-50/50 transition-all duration-200 hover:shadow-md ${getRankColor(rank)} group`}
+                      className={`border-b border-neutral-100 hover:bg-neutral-50 transition-colors ${getRankColor(rank)}`}
                     >
-                      <td className="px-4 sm:px-6 py-5">
+                      <td className="px-4 sm:px-6 py-4">
                         <div className="flex items-center gap-2">
-                          {medal && <span className="text-2xl animate-pulse">{medal}</span>}
-                          <span className={`font-black text-lg ${rank <= 3 ? 'text-indigo-600' : 'text-slate-400'}`}>
+                          {medal && <span className="text-xl">{medal}</span>}
+                          <span className={`text-sm font-medium ${rank <= 3 ? 'text-neutral-900' : 'text-neutral-600'}`}>
                             #{rank}
                           </span>
                         </div>
                       </td>
-                      <td className="px-4 sm:px-6 py-5">
-                        <span className="font-semibold text-slate-900 text-base group-hover:text-indigo-600 transition-colors">
+                      <td className="px-4 sm:px-6 py-4">
+                        <span className="text-sm font-medium text-neutral-900">
                           {s.user_id}
                         </span>
                       </td>
-                      <td className="px-4 sm:px-6 py-5">
-                        <div className="flex flex-col">
-                          <span className="font-mono text-indigo-600 font-black text-xl">
+                      <td className="px-4 sm:px-6 py-4">
+                        <div>
+                          <div className="text-lg font-semibold text-neutral-900 font-mono">
                             {s.gflops.toFixed(2)}
-                          </span>
-                          <span className="text-xs text-slate-500 font-semibold">GFLOPS</span>
+                          </div>
+                          <div className="text-xs text-neutral-500">GFLOPS</div>
                         </div>
                       </td>
-                      <td className="px-4 sm:px-6 py-5">
-                        <div className="flex gap-2">
-                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
+                      <td className="px-4 sm:px-6 py-4">
+                        <div className="flex gap-2 flex-wrap">
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-neutral-100 text-neutral-700 border border-neutral-300">
                             N: {s.problem_size_n}
                           </span>
-                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700">
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-neutral-100 text-neutral-700 border border-neutral-300">
                             NB: {s.block_size_nb}
                           </span>
                         </div>
                       </td>
-                      <td className="px-4 sm:px-6 py-5">
-                        <div className="text-slate-500 text-sm">
-                          <div className="font-medium">{new Date(s.submitted_at).toLocaleDateString('zh-TW')}</div>
-                          <div className="text-xs text-slate-400">{new Date(s.submitted_at).toLocaleTimeString('zh-TW')}</div>
+                      <td className="px-4 sm:px-6 py-4">
+                        <div className="text-sm text-neutral-700">
+                          {new Date(s.submitted_at).toLocaleDateString('zh-TW')}
+                        </div>
+                        <div className="text-xs text-neutral-500">
+                          {new Date(s.submitted_at).toLocaleTimeString('zh-TW')}
                         </div>
                       </td>
                     </tr>
@@ -152,16 +148,15 @@ function App() {
           {/* Empty State */}
           {scores.length === 0 && (
             <div className="text-center py-16 px-4">
-              <div className="text-6xl mb-4">📊</div>
-              <h3 className="text-xl font-bold text-slate-700 mb-2">No submissions yet</h3>
-              <p className="text-slate-500">Waiting for performance data...</p>
+              <h3 className="text-lg font-medium text-neutral-700 mb-2">No submissions yet</h3>
+              <p className="text-sm text-neutral-500">Waiting for performance data...</p>
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="mt-8 text-center text-slate-500 text-sm">
-          <p>Updates automatically · Powered by HPL Benchmark</p>
+        <div className="text-center">
+          <p className="text-sm text-neutral-500">Updates automatically</p>
         </div>
       </div>
     </div>
