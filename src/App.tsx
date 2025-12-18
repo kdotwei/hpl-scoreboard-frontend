@@ -8,6 +8,7 @@ interface Score {
   block_size_nb: number;
   p: number;
   q: number;
+  execution_time: number;
   submitted_at: string;
 }
 
@@ -240,6 +241,7 @@ function App() {
                   <th className={`px-4 sm:px-6 py-4 text-left text-sm font-medium ${isDarkMode ? 'text-slate-200/90' : 'text-slate-700/90'}`}>Student ID</th>
                   <th className={`px-4 sm:px-6 py-4 text-left text-sm font-medium ${isDarkMode ? 'text-slate-200/90' : 'text-slate-700/90'}`}>Performance</th>
                   <th className={`px-4 sm:px-6 py-4 text-left text-sm font-medium ${isDarkMode ? 'text-slate-200/90' : 'text-slate-700/90'}`}>Configuration</th>
+                  <th className={`px-4 sm:px-6 py-4 text-left text-sm font-medium ${isDarkMode ? 'text-slate-200/90' : 'text-slate-700/90'}`}>Execution Time</th>
                   <th className={`px-4 sm:px-6 py-4 text-left text-sm font-medium ${isDarkMode ? 'text-slate-200/90' : 'text-slate-700/90'}`}>Submitted</th>
                 </tr>
               </thead>
@@ -311,6 +313,14 @@ function App() {
                           }`}>
                             Q: {s.q}
                           </span>
+                        </div>
+                      </td>
+                      <td className="px-4 sm:px-6 py-4">
+                        <div>
+                          <div className={`text-sm font-medium font-mono ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                            {s.execution_time.toFixed(2)}
+                          </div>
+                          <div className={`text-xs ${isDarkMode ? 'text-slate-400/80' : 'text-slate-500/80'}`}>seconds</div>
                         </div>
                       </td>
                       <td className="px-4 sm:px-6 py-4">
